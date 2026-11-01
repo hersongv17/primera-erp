@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOVA PRESS | Diario Digital Interactivo 3D</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              cyan: '#00f2fe',
+              blue: '#3b82f6',
+              dark: '#090d16',
+              card: '#0f172a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Estilos Embebidos para compatibilidad Neocities / Standalone -->
+  <style>
+/* ==========================================================================
+   NOVA PRESS - ESTILOS PERSONALIZADOS Y VARIABLES EDITORIALES
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,400&display=swap');
+
+:root {
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-brand: 'Cinzel', serif;
+
+  /* Modo Oscuro por defecto */
+  --bg-main: #090d16;
+  --bg-card: rgba(15, 23, 42, 0.75);
+  --bg-surface: #0f172a;
+  --border-subtle: rgba(51, 65, 85, 0.6);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --accent-cyan: #00f2fe;
+  --accent-blue: #3b82f6;
+  --accent-glow: rgba(0, 242, 254, 0.25);
+}
+
+html.light {
+  --bg-main: #f8fafc;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-surface: #ffffff;
+  --border-subtle: rgba(226, 232, 240, 0.8);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --accent-cyan: #0284c7;
+  --accent-blue: #2563eb;
+  --accent-glow: rgba(2, 132, 199, 0.2);
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+.brand-font {
+  font-family: var(--font-brand);
+}
+
+.serif-font {
+  font-family: var(--font-serif);
+}
+
+/* ==========================================================================
+   CANVAS 3D Y CONTENEDOR DE ICONO MÓVIL 3D
+   ========================================================================== */
+
+#three-canvas-container {
+  width: 100%;
+  height: 380px;
+  position: relative;
+  cursor: grab;
+  touch-action: none;
+}
+
+#three-canvas-container:active {
+  cursor: grabbing;
+}
+
+#three-canvas-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  outline: none;
+}
+
+.glow-circle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 260px;
+  height: 260px;
+  background: radial-gradient(circle, rgba(0, 242, 254, 0.2) 0%, rgba(59, 130, 246, 0.08) 50%, transparent 70%);
+  filter: blur(25px);
+  pointer-events: none;
+  z-index: 0;
+  animation: pulseGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.6; }
+  100% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+}
+
+/* Icono Móvil Flotante 3D (Widget inferior derecho) */
+.floating-3d-badge {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 40;
+  animation: floatBounce 3s ease-in-out infinite alternate;
+}
+
+@keyframes floatBounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-8px); }
+}
+
+/* ==========================================================================
+   MARQUESINA DE NOTICIAS DE ÚLTIMA HORA (TICKER)
+   ========================================================================== */
+
+.ticker-wrap {
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ticker-move {
+  display: inline-block;
+  white-space: nowrap;
+  animation: tickerScroll 35s linear infinite;
+}
+
+.ticker-wrap:hover .ticker-move {
+  animation-play-state: paused;
+}
+
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ==========================================================================
+   ESTILOS DE CATEGORÍAS Y BOTONES
+   ========================================================================== */
+
+.category-btn {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.category-btn.active {
+  background: linear-gradient(135deg, #00f2fe 0%, #3b82f6 100%) !important;
+  color: #020617 !important;
+  font-weight: 700;
+  border-color: transparent !important;
+  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.35);
+}
+
+/* ==========================================================================
+   TARJETAS DE NOTICIAS & HOVER
+   ========================================================================== */
+
+.news-card {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.news-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Modos de lectura y modal */
+.modal-overlay {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Estilos de Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #090d16;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Soporte de luz */
+html.light .bg-slate-900,
+html.light .bg-slate-950 {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+html.light .bg-slate-800,
+html.light .bg-slate-800\/80 {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-300,
+html.light .text-slate-400 {
+  color: #475569 !important;
+}
+
+html.light .border-slate-700,
+html.light .border-slate-800,
+html.light .border-slate-700\/60 {
+  border-color: #cbd5e1 !important;
+}
+
+html.light .bg-slate-900\/60 {
+  background-color: #f8fafc !important;
+}
+
+
+  </style>
+
+  <!-- Three.js CDN para el Icono Móvil 3D -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body class="bg-[#090d16] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-cyan-500 selection:text-slate-950">
+
+  <!-- ==================== BARRA SUPERIOR: FECHA & MERCADOS ==================== -->
+  <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between py-2 text-xs border-b border-slate-800/50 text-slate-400">
+        <div class="flex items-center gap-4">
+          <span class="flex items-center gap-1.5 font-medium text-slate-300">
+            <i class="fa-regular fa-calendar text-cyan-400"></i>
+            <span id="current-live-date">Martes, 27 de Octubre, 2026</span>
+          </span>
+          <span class="hidden md:inline-block text-slate-600">|</span>
+          <div class="hidden md:flex items-center gap-3">
+            <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-arrow-trend-up"></i> IBEX +1.15%</span>
+            <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-arrow-trend-up"></i> NASDAQ +2.04%</span>
+            <span class="text-cyan-400 font-semibold"><i class="fa-solid fa-robot"></i> AI INDEX +4.8%</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 bg-slate-900 px-2.5 py-1 rounded-full border border-slate-800 text-[11px]">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-slate-300 font-semibold">EDICIÓN 3D EN DIRECTO</span>
+          </div>
+
+          <!-- Cambio de tema (Claro / Oscuro) -->
+          <button id="theme-toggle-btn" class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-cyan-500/50 text-amber-400 transition-colors" title="Cambiar Tema">
+            <i id="theme-icon" class="fa-solid fa-sun"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Logotipo & Barra de Herramientas -->
+      <div class="py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-slate-950 font-black text-2xl shadow-lg shadow-cyan-500/30 transform hover:rotate-6 transition-transform cursor-pointer">
+            <i class="fa-solid fa-cube text-white"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white brand-font">NOVA <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">PRESS</span></h1>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">3D LIVE</span>
+            </div>
+            <p class="text-xs text-slate-400">Periodismo global, interactivo y en tiempo real</p>
+          </div>
+        </div>
+
+        <!-- Buscador y Guardados -->
+        <div class="flex items-center gap-3">
+          <div class="relative flex-1 md:w-80">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <input type="text" id="search-input" placeholder="Buscar noticias, tecnología, ciencia..." class="w-full pl-10 pr-4 py-2 bg-slate-900/90 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all">
+          </div>
+
+          <button id="bookmark-btn" class="relative p-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-500 text-slate-200 transition-colors" title="Ver noticias guardadas">
+            <i class="fa-solid fa-bookmark text-base"></i>
+            <span id="bookmark-count" class="hidden absolute -top-1 -right-1 bg-cyan-500 text-slate-950 font-extrabold text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-md">0</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== CINTA DE ÚLTIMA HORA (TICKER) ==================== -->
+  <div class="bg-gradient-to-r from-rose-950 via-slate-950 to-slate-900 border-b border-rose-900/40 py-2">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-3 overflow-hidden">
+      <div class="flex items-center gap-2 bg-rose-600 text-white font-extrabold text-xs px-2.5 py-1 rounded shadow-md shrink-0 uppercase tracking-wider">
+        <i class="fa-solid fa-bolt animate-bounce"></i>
+        <span>ÚLTIMA HORA</span>
+      </div>
+      <div class="ticker-wrap flex-1 text-slate-300">
+        <div id="breaking-ticker" class="ticker-move text-xs sm:text-sm"></div>
+      </div>
+    </div>
+  </div>
+
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-10">
+
+    <!-- ==================== HERO SECTION CON ICONO MÓVIL 3D ==================== -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      <!-- Portada Destacada -->
+      <div class="lg:col-span-8 flex flex-col justify-center" id="featured-news">
+        <!-- Renderizado dinámico desde app.js -->
+      </div>
+
+      <!-- Tarjeta Interactiva del Icono Móvil 3D -->
+      <div id="hero-3d-card" class="lg:col-span-4 bg-slate-900/80 rounded-2xl border border-slate-800 p-5 flex flex-col justify-between relative overflow-hidden shadow-2xl backdrop-blur-md">
+        <!-- Resplandor ambiental de fondo -->
+        <div class="glow-circle"></div>
+
+        <!-- Encabezado de la tarjeta 3D -->
+        <div class="relative z-10 flex items-center justify-between pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+            <h3 class="text-sm font-bold tracking-wide uppercase text-white flex items-center gap-2">
+              <i class="fa-solid fa-cube text-cyan-400"></i>
+              Icono Móvil 3D
+            </h3>
+          </div>
+          <span class="text-[11px] text-cyan-300/80 bg-cyan-950/60 border border-cyan-800/50 px-2 py-0.5 rounded font-mono">INTERACTIVO</span>
+        </div>
+
+        <!-- Canvas 3D de Three.js -->
+        <div class="relative z-10 my-2 flex items-center justify-center">
+          <div id="three-canvas-container" title="Arrastra para rotar o haz clic"></div>
+        </div>
+
+        <!-- Instrucción de Interacción -->
+        <div class="relative z-10 text-center text-xs text-slate-400 mb-4 bg-slate-950/60 py-2 px-3 rounded-xl border border-slate-800/80">
+          <p><i class="fa-solid fa-arrows-up-down-left-right text-cyan-400 mr-1.5"></i> Arrastra con el ratón o dedo para rotar 360°</p>
+        </div>
+
+        <!-- Panel de Controles Interactivos del Icono 3D -->
+        <div class="relative z-10 space-y-3 pt-3 border-t border-slate-800">
+          <!-- Selector de Modo de Icono 3D -->
+          <div>
+            <label class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">Modelo 3D:</label>
+            <div class="grid grid-cols-3 gap-1.5 text-xs">
+              <button id="model-globe-btn" class="py-1.5 px-2 rounded-lg bg-cyan-500 text-slate-950 font-bold border border-cyan-400 transition-all flex items-center justify-center gap-1">
+                <i class="fa-solid fa-earth-americas text-xs"></i> Globo
+              </button>
+              <button id="model-cube-btn" class="py-1.5 px-2 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:border-cyan-500/50 transition-all flex items-center justify-center gap-1">
+                <i class="fa-solid fa-cube text-xs"></i> Cubo
+              </button>
+              <button id="model-prism-btn" class="py-1.5 px-2 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 hover:border-cyan-500/50 transition-all flex items-center justify-center gap-1">
+                <i class="fa-solid fa-gem text-xs"></i> Prisma
+              </button>
+            </div>
+          </div>
+
+          <!-- Selector de Color de Holograma -->
+          <div class="flex items-center justify-between pt-1">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Holograma:</span>
+            <div class="flex items-center gap-2">
+              <button id="theme-cyan-btn" class="w-6 h-6 rounded-full bg-cyan-400 border-2 border-white shadow-sm shadow-cyan-400" title="Cian Neón"></button>
+              <button id="theme-amber-btn" class="w-6 h-6 rounded-full bg-amber-400 border border-slate-700 hover:border-white transition-all" title="Ámbar Solar"></button>
+              <button id="theme-purple-btn" class="w-6 h-6 rounded-full bg-fuchsia-500 border border-slate-700 hover:border-white transition-all" title="Púrpura Cuántico"></button>
+            </div>
+          </div>
+
+          <!-- Slider de Velocidad de Giro -->
+          <div class="pt-1">
+            <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+              <span>Velocidad de Giro:</span>
+              <span id="speed-label" class="font-mono text-cyan-400">80%</span>
+            </div>
+            <input type="range" id="speed-slider" min="0" max="0.03" step="0.002" value="0.008" class="w-full accent-cyan-400 bg-slate-800 h-1.5 rounded-lg cursor-pointer">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== NAVEGACIÓN POR CATEGORÍAS ==================== -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
+          <i class="fa-solid fa-newspaper text-cyan-400"></i>
+          Explorar Titulares
+        </h2>
+        <span class="text-xs text-slate-400 hidden sm:inline">Edición multimedia interactiva</span>
+      </div>
+
+      <!-- Pestañas de categorías con scroll horizontal fluido -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <button data-category="all" class="category-btn active px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:border-cyan-500/50">
+          <i class="fa-solid fa-layer-group mr-1.5"></i> Todos
+        </button>
+        <button data-category="tecnologia" class="category-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:border-cyan-500/50">
+          <i class="fa-solid fa-microchip mr-1.5"></i> Tecnología
+        </button>
+        <button data-category="ciencia" class="category-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:border-cyan-500/50">
+          <i class="fa-solid fa-atom mr-1.5"></i> Ciencia
+        </button>
+        <button data-category="economia" class="category-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:border-cyan-500/50">
+          <i class="fa-solid fa-chart-line mr-1.5"></i> Economía
+        </button>
+        <button data-category="innovacion" class="category-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:border-cyan-500/50">
+          <i class="fa-solid fa-lightbulb mr-1.5"></i> Innovación
+        </button>
+        <button data-category="salud" class="category-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:border-cyan-500/50">
+          <i class="fa-solid fa-dna mr-1.5"></i> Salud
+        </button>
+        <button data-category="cultura" class="category-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 text-slate-300 border border-slate-700 hover:border-cyan-500/50">
+          <i class="fa-solid fa-gamepad mr-1.5"></i> Cultura & Ocio
+        </button>
+      </div>
+    </section>
+
+    <!-- ==================== CUADRÍCULA DE NOTICIAS ==================== -->
+    <section>
+      <div id="news-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Renderizado dinámico desde app.js -->
+      </div>
+    </section>
+
+    <!-- ==================== BOLETÍN DIGITAL (NEWSLETTER) ==================== -->
+    <section class="relative rounded-3xl bg-gradient-to-r from-blue-950 via-slate-900 to-cyan-950 p-8 sm:p-12 border border-cyan-500/30 overflow-hidden shadow-2xl">
+      <div class="absolute -right-10 -bottom-10 w-72 h-72 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none"></div>
+      
+      <div class="relative z-10 max-w-2xl">
+        <span class="px-3 py-1 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 uppercase tracking-wider inline-block mb-3">
+          Resumen Semanal
+        </span>
+        <h3 class="text-2xl sm:text-3xl font-extrabold text-white mb-3">Recibe las noticias más importantes en tu bandeja de entrada</h3>
+        <p class="text-slate-300 text-sm mb-6 leading-relaxed">
+          Análisis profundos, avances en inteligencia artificial, ciencia espacial y economía global sin ruido ni algoritmos opacos.
+        </p>
+
+        <form id="newsletter-form" class="flex flex-col sm:flex-row gap-3">
+          <input type="email" id="newsletter-email" required placeholder="tu.correo@ejemplo.com" class="flex-1 px-4 py-3 rounded-xl bg-slate-950/80 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-cyan-400">
+          <button type="submit" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-600 hover:from-cyan-300 hover:to-blue-500 text-slate-950 font-bold text-sm transition-all shadow-lg shadow-cyan-500/25">
+            Suscribirme Gratis
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==================== WIDGET FLOTANTE ICONO MÓVIL 3D ==================== -->
+  <div class="floating-3d-badge">
+    <button id="floating-3d-trigger" class="relative group p-3.5 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-slate-950 font-bold shadow-xl shadow-cyan-500/40 hover:scale-110 active:scale-95 transition-all flex items-center gap-2">
+      <i class="fa-solid fa-cube text-xl animate-spin" style="animation-duration: 9s;"></i>
+      <span class="hidden sm:inline text-xs font-black tracking-wide text-white">3D INTERACTIVO</span>
+      <span class="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-slate-950 animate-ping"></span>
+    </button>
+  </div>
+
+  <!-- ==================== PIE DE PÁGINA ==================== -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-10 mt-12 text-slate-400 text-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div class="space-y-3">
+        <h4 class="text-white font-bold brand-font text-lg">NOVA PRESS</h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Plataforma de periodismo inmersivo con visualización volumétrica y motores de datos en tiempo real.
+        </p>
+      </div>
+      <div>
+        <h5 class="text-white font-semibold text-xs uppercase tracking-wider mb-3">Secciones</h5>
+        <ul class="space-y-2 text-xs">
+          <li><a href="#" class="hover:text-cyan-400 transition-colors">Tecnología & IA</a></li>
+          <li><a href="#" class="hover:text-cyan-400 transition-colors">Ciencia & Espacio</a></li>
+          <li><a href="#" class="hover:text-cyan-400 transition-colors">Economía Global</a></li>
+          <li><a href="#" class="hover:text-cyan-400 transition-colors">Innovación Urbana</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5 class="text-white font-semibold text-xs uppercase tracking-wider mb-3">Tecnología 3D</h5>
+        <ul class="space-y-2 text-xs">
+          <li><span class="text-slate-400">Motor: WebGL / Three.js</span></li>
+          <li><span class="text-slate-400">Audio: Web Speech API</span></li>
+          <li><span class="text-slate-400">Diseño Reactivo 360°</span></li>
+          <li><span class="text-slate-400">Renderizado por GPU</span></li>
+        </ul>
+      </div>
+      <div>
+        <h5 class="text-white font-semibold text-xs uppercase tracking-wider mb-3">Conectar</h5>
+        <div class="flex items-center gap-3 text-lg mb-3">
+          <a href="#" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:text-cyan-400 hover:border-cyan-400 transition-all"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:text-cyan-400 hover:border-cyan-400 transition-all"><i class="fa-brands fa-github"></i></a>
+          <a href="#" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center hover:text-cyan-400 hover:border-cyan-400 transition-all"><i class="fa-brands fa-linkedin-in"></i></a>
+        </div>
+        <p class="text-[11px] text-slate-500">© 2026 NOVA PRESS. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== MODAL DE NOTICIA COMPLETA ==================== -->
+  <div id="article-modal" class="fixed inset-0 z-50 bg-slate-950/80 modal-overlay hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
+    <div class="relative w-full max-w-3xl bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
+      
+      <!-- Cabecera del Modal con Botón Cerrar y Barra de Herramientas -->
+      <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-950/70 sticky top-0 z-20">
+        <div class="flex items-center gap-2">
+          <!-- Escuchar Noticia con Voz -->
+          <button id="modal-tts-btn" class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 hover:border-cyan-500 text-xs text-slate-200 flex items-center gap-1.5 transition-all">
+            <i class="fa-solid fa-volume-high text-cyan-400"></i>
+            <span>Escuchar Noticia</span>
+          </button>
+
+          <!-- Ajuste de tipografía -->
+          <div class="flex items-center bg-slate-800 border border-slate-700 rounded-xl px-1 text-xs">
+            <button id="font-decrease-btn" class="p-1.5 hover:text-cyan-400" title="Reducir fuente">A-</button>
+            <span class="text-slate-600 px-1">|</span>
+            <button id="font-increase-btn" class="p-1.5 hover:text-cyan-400" title="Aumentar fuente">A+</button>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="modal-bookmark-btn" class="p-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 hover:text-cyan-400 transition-all" title="Guardar">
+            <i class="fa-regular fa-bookmark"></i>
+          </button>
+          <button id="modal-share-btn" class="p-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 hover:text-cyan-400 transition-all" title="Compartir">
+            <i class="fa-solid fa-share-nodes"></i>
+          </button>
+          <button id="close-article-btn" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-500/20 hover:text-rose-400 border border-slate-700 transition-all ml-1" title="Cerrar">
+            <i class="fa-solid fa-xmark text-base"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Contenido desplazable del artículo -->
+      <div class="p-6 sm:p-8 overflow-y-auto space-y-6 flex-1">
+        <span id="modal-category" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 inline-block">
+          Tecnología
+        </span>
+
+        <h1 id="modal-title" class="text-2xl sm:text-3xl font-extrabold text-white leading-tight">
+          Título de la Noticia
+        </h1>
+
+        <!-- Info autor y fecha -->
+        <div class="flex items-center justify-between flex-wrap gap-4 py-3 border-y border-slate-800 text-xs text-slate-400">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-white shadow-md">
+              <span id="modal-author-avatar">E</span>
+            </div>
+            <div>
+              <p id="modal-author" class="font-bold text-white text-sm">Elena Rostova</p>
+              <p id="modal-author-role" class="text-slate-400">Editora de Innovación</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="modal-date">27 Oct 2026</span>
+            <span>•</span>
+            <span id="modal-read-time">4 min de lectura</span>
+          </div>
+        </div>
+
+        <!-- Imagen principal -->
+        <div class="rounded-2xl overflow-hidden border border-slate-800 shadow-xl max-h-96">
+          <img id="modal-image" src="" alt="" class="w-full h-full object-cover">
+        </div>
+
+        <!-- Cuerpo del artículo -->
+        <div id="modal-content" class="prose prose-invert max-w-none text-slate-300">
+          <!-- Inyectado dinámicamente -->
+        </div>
+
+        <!-- Reacciones interactivas -->
+        <div class="pt-6 border-t border-slate-800 flex items-center justify-between flex-wrap gap-4">
+          <div class="flex items-center gap-3">
+            <button id="modal-like-btn" class="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 hover:border-rose-500/50 flex items-center gap-2 text-slate-200 transition-all">
+              <i class="fa-solid fa-heart text-rose-500"></i>
+              <span id="modal-like-count" class="font-bold text-sm">342</span>
+            </button>
+            <button id="modal-clap-btn" class="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 hover:border-amber-500/50 flex items-center gap-2 text-slate-200 transition-all">
+              <i class="fa-solid fa-hands-clapping text-amber-400"></i>
+              <span id="modal-clap-count" class="font-bold text-sm">128</span>
+            </button>
+          </div>
+          <span class="text-xs text-slate-400">¿Te gustó el reportaje? Deja tu reacción.</span>
+        </div>
+
+        <!-- Sección de Comentarios -->
+        <div class="pt-6 border-t border-slate-800 space-y-4">
+          <h3 class="font-bold text-white text-base flex items-center gap-2">
+            <i class="fa-solid fa-comments text-cyan-400"></i>
+            Comentarios de la Comunidad
+          </h3>
+
+          <!-- Formulario de comentario -->
+          <form id="comment-form" class="space-y-3 bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+            <input type="text" id="comment-user-input" placeholder="Tu nombre (opcional)" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400">
+            <textarea id="comment-input" rows="2" required placeholder="Escribe tu reflexión sobre este tema..." class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400"></textarea>
+            <div class="flex justify-end">
+              <button type="submit" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-paper-plane"></i> Publicar Comentario
+              </button>
+            </div>
+          </form>
+
+          <!-- Lista de comentarios -->
+          <div id="comments-list" class="space-y-2.5">
+            <!-- Inyectado dinámicamente -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL DE MARCADORES (NOTICIAS GUARDADAS) ==================== -->
+  <div id="bookmarks-modal" class="fixed inset-0 z-50 bg-slate-950/80 modal-overlay hidden items-center justify-center p-4">
+    <div class="relative w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden p-6 max-h-[80vh] flex flex-col">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+        <h3 class="font-bold text-white text-lg flex items-center gap-2">
+          <i class="fa-solid fa-bookmark text-cyan-400"></i>
+          Noticias Guardadas
+        </h3>
+        <button id="close-bookmarks-btn" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div id="bookmarks-list" class="py-4 space-y-3 overflow-y-auto flex-1">
+        <!-- Inyectado dinámicamente -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== NOTIFICACIÓN TOAST FLOTANTE ==================== -->
+  <div id="toast-notification" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 border border-cyan-500/50 text-white px-5 py-3 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-4 pointer-events-none">
+    <i class="fa-solid fa-circle-check text-cyan-400 text-base"></i>
+    <span id="toast-message" class="text-xs sm:text-sm font-medium">Notificación</span>
+  </div>
+
+  <!-- Scripts Embebidos para compatibilidad Neocities / Standalone -->
+  <script>
+// Base de datos de noticias en español
+const NEWS_DATA = [
+  {
+    id: 1,
+    title: "La Inteligencia Artificial revoluciona el periodismo inmersivo y el análisis de datos en tiempo real",
+    category: "tecnologia",
+    categoryName: "Tecnología",
+    summary: "Nuevas herramientas generativas permiten a las salas de redacción procesar millones de datos en segundos y crear experiencias visuales interactivas en 3D.",
+    content: `La convergencia entre la inteligencia artificial generativa y las tecnologías 3D está transformando radicalmente la forma en que consumimos información. Los medios digitales de última generación no solo presentan texto e imágenes estáticas, sino entornos informativos vivos donde el lector puede explorar infografías volumétricas y simulaciones dinámicas.
+
+Expertos de los principales laboratorios de innovación periodística señalan que esta evolución democratiza el acceso a análisis complejos. Mediante algoritmos de síntesis y renderizado acelerado por hardware, los reportajes de investigación ahora integran modelos tridimensionales interactivos que permiten inspeccionar desde misiones espaciales hasta desgloses presupuestarios con precisión milimétrica.
+
+Además, la personalización ética de contenidos garantiza que cada usuario reciba perspectivas contextualizadas sin caer en cámaras de eco, marcando el inicio de una nueva era para el periodismo digital global.`,
+    author: "Elena Rostova",
+    authorRole: "Editora de Innovación y Tecnología",
+    date: "27 Oct 2026",
+    readTime: "4 min",
+    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80",
+    featured: true,
+    views: "18.4K",
+    likes: 342,
+    claps: 128,
+    comments: [
+      { user: "Carlos M.", time: "Hace 2 horas", text: "Increíble la integración 3D en las noticias. Facilita entender temas complejos." },
+      { user: "Sofía Gómez", time: "Hace 4 horas", text: "El futuro de los medios interactivos ya está aquí." }
+    ]
+  },
+  {
+    id: 2,
+    title: "Descubren un nuevo exoplaneta habitable con atmósfera densa mediante el telescopio espacial",
+    category: "ciencia",
+    categoryName: "Ciencia",
+    summary: "Astrofísicos internacionales confirman indicios de vapor de agua y compuestos orgánicos en un sistema estelar a 48 años luz.",
+    content: `Un equipo internacional de astrofísicos ha confirmado el hallazgo de un prometedor exoplaneta rocoso orbitando en la zona habitable de su estrella anfitriona. Los análisis espectrales revelan una atmósfera densa compuesta por nitrógeno, trazas de dióxido de carbono y vapor de agua.
+
+El cuerpo celeste, denominado provisionalmente 'Aethelgard-4b', posee una masa 1.3 veces superior a la Tierra, lo que le confiere una gravedad superficial cómoda para hipotéticas exploraciones robóticas. Las observaciones continuarán durante los próximos meses con espectroscopia infrarroja para determinar la presencia de biofirmas adicionales.`,
+    author: "Dr. Marcos Valdés",
+    authorRole: "Astrofísico y Divulgador",
+    date: "27 Oct 2026",
+    readTime: "6 min",
+    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80",
+    featured: false,
+    views: "24.1K",
+    likes: 819,
+    claps: 412,
+    comments: [
+      { user: "Laura Vega", time: "Hace 1 hora", text: "Cada hallazgo nos acerca más a responder la gran pregunta." }
+    ]
+  },
+  {
+    id: 3,
+    title: "Mercados globales responden con optimismo ante el nuevo tratado de energías renovables",
+    category: "economia",
+    categoryName: "Economía",
+    summary: "Las bolsas europeas y asiáticas registran alzas históricas impulsadas por inversiones en hidrógeno verde y baterías de estado sólido.",
+    content: `La firma del nuevo pacto multilateral para la transición energética ha desencadenado un repunte masivo en los principales índices bursátiles. Las compañías especializadas en almacenamiento en red y tecnologías solares de perovskita han liderado las ganancias.
+
+Analistas de Wall Street y Frankfurt coinciden en que los incentivos fiscales y el marco regulatorio unificado ofrecen la certeza jurídica necesaria para canalizar billones de dólares hacia infraestructuras sostenibles durante la próxima década.`,
+    author: "Patricia Méndez",
+    authorRole: "Analista Financiera Senior",
+    date: "26 Oct 2026",
+    readTime: "5 min",
+    image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80",
+    featured: false,
+    views: "12.7K",
+    likes: 195,
+    claps: 64,
+    comments: []
+  },
+  {
+    id: 4,
+    title: "Arquitectura biológica: rascacielos que purifican el aire urbano y generan su propia energía",
+    category: "innovacion",
+    categoryName: "Innovación",
+    summary: "Nuevas torres bioclimáticas en Singapur y Tokio utilizan fachadas vivas con microalgas para capturar carbono y generar electricidad.",
+    content: `La simbiosis entre biología y diseño estructural está redefiniendo el horizonte urbano. En las principales metrópolis de Asia, rascacielos dotados de bioreactores de microalgas integrados en sus cerramientos de vidrio absorben hasta 10 veces más CO2 que un bosque de superficie equivalente.
+
+El subproducto de este proceso —biomasa rica en nutrientes— se transforma in situ en biogás y biocombustible para alimentar la climatización y los sistemas de iluminación del propio edificio, alcanzando la categoría de huella de carbono negativa.`,
+    author: "Rodrigo Chen",
+    authorRole: "Corresponsal de Arquitectura y Urbanismo",
+    date: "26 Oct 2026",
+    readTime: "4 min",
+    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
+    featured: false,
+    views: "9.3K",
+    likes: 274,
+    claps: 92,
+    comments: []
+  },
+  {
+    id: 5,
+    title: "Avance médico: Nanorobots programables logran eliminar células tumorales sin dañar tejido sano",
+    category: "salud",
+    categoryName: "Salud",
+    summary: "Ensayos clínicos de fase II demuestran una eficacia del 94% en tratamientos dirigidos con nanopartículas guiadas por campos magnéticos.",
+    content: `Científicos del Centro Oncológico Avanzado han presentado resultados sin precedentes en el tratamiento selectivo de neoplasias. Mediante nanorobots de ADN plegado y núcleos ferromagnéticos, los fármacos de quimioterapia son transportados directamente al interior de las células malignas.
+
+Este método de 'entrega milimétrica' previene los efectos adversos clásicos de los tratamientos tradicionales, abriendo la puerta a terapias ambulatorias de rápida recuperación con mínima toxicidad sistémica.`,
+    author: "Dra. Valeria Campos",
+    authorRole: "Especialista en Nanomedicina",
+    date: "25 Oct 2026",
+    readTime: "7 min",
+    image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?auto=format&fit=crop&w=1200&q=80",
+    featured: false,
+    views: "31.5K",
+    likes: 1204,
+    claps: 590,
+    comments: [
+      { user: "Andrés Silva", time: "Ayer", text: "Un hito que cambiará millones de vidas. Felicitaciones al equipo médico." }
+    ]
+  },
+  {
+    id: 6,
+    title: "La final del Campeonato Mundial de E-Sports reúne a más de 80 millones de espectadores en directo",
+    category: "cultura",
+    categoryName: "Cultura & Ocio",
+    summary: "El evento transmitido en hologramas 3D y realidad aumentada bate récords históricos de audiencia global.",
+    content: `La cúspide del deporte electrónico celebró su final más vista en la historia. Los estadios virtuales sincronizados en Tokio, Seúl y Los Ángeles combinaron proyecciones volumétricas a escala real donde los avatares de los jugadores interactuaban en arenas cinemáticas.
+
+Marcas globales y plataformas de streaming han consolidado este ecosistema como uno de los motores culturales y publicitarios más dinámicos entre las nuevas generaciones de nativos digitales.`,
+    author: "Matías Morales",
+    authorRole: "Cronista de Cultura Digital",
+    date: "25 Oct 2026",
+    readTime: "3 min",
+    image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1200&q=80",
+    featured: false,
+    views: "44.9K",
+    likes: 1530,
+    claps: 810,
+    comments: []
+  }
+];
+
+const BREAKING_NEWS = [
+  "🚨 ÚLTIMA HORA: Misión Artemis IV aterriza con éxito en el polo sur lunar con equipo científico internacional.",
+  "⚡ MERCADOS: El índice tecnológico repunta +3.2% tras anuncios sobre supercomputación cuántica.",
+  "🌱 CLIMA: Alianza global logra acuerdo vinculante para proteger el 40% de los océanos mundiales.",
+  "🛰️ CIENCIA: Telescopio orbital detecta señales de radio coherentes en una galaxia vecina."
+];
+
+
+
+/**
+ * Escena 3D Interactiva con Three.js para la Web de Noticias
+ * Incluye un icono 3D móvil interactivo con múltiples modos:
+ * 1. HoloGlobo 3D (Globo terráqueo holográfico con anillos orbitales y satélites)
+ * 2. Cubo de Noticias 3D (Cubo isométrico con texturas tipográficas y resplandor)
+ * 3. Prisma Holográfico 3D (Prisma cristalino con partículas orbitales)
+ */
+
+class Interactive3DNewsIcon {
+  constructor(containerId) {
+    this.container = document.getElementById(containerId);
+    if (!this.container) return;
+
+    this.scene = null;
+    this.camera = null;
+    this.renderer = null;
+    this.mainGroup = null;
+    this.orbitGroup = null;
+    this.particles = null;
+
+    // Estados y animaciones
+    this.mouseX = 0;
+    this.mouseY = 0;
+    this.targetRotationX = 0;
+    this.targetRotationY = 0;
+    this.currentMode = 'globe'; // 'globe', 'cube', 'prism'
+    this.rotationSpeed = 0.008;
+    this.isDragging = false;
+    this.previousMousePosition = { x: 0, y: 0 };
+    this.colorThemes = {
+      cyan: { primary: 0x00f2fe, secondary: 0x4facfe, glow: 0x00e5ff },
+      amber: { primary: 0xffaa00, secondary: 0xff6a00, glow: 0xffd200 },
+      purple: { primary: 0xd946ef, secondary: 0x8b5cf6, glow: 0xc084fc }
+    };
+    this.activeTheme = 'cyan';
+
+    this.init();
+    this.setupListeners();
+    this.animate();
+  }
+
+  init() {
+    const width = this.container.clientWidth || 360;
+    const height = this.container.clientHeight || 360;
+
+    // Escena
+    this.scene = new THREE.Scene();
+
+    // Cámara
+    this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    this.camera.position.z = 7;
+
+    // Renderer
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    this.renderer.setSize(width, height);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.2;
+    this.container.appendChild(this.renderer.domElement);
+
+    // Grupo principal para el icono 3D
+    this.mainGroup = new THREE.Group();
+    this.orbitGroup = new THREE.Group();
+    this.mainGroup.add(this.orbitGroup);
+    this.scene.add(this.mainGroup);
+
+    // Luces
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    this.scene.add(ambientLight);
+
+    const dirLight1 = new THREE.DirectionalLight(0x00f2fe, 2.5);
+    dirLight1.position.set(5, 5, 5);
+    this.scene.add(dirLight1);
+    this.dirLight1 = dirLight1;
+
+    const dirLight2 = new THREE.DirectionalLight(0xec4899, 2);
+    dirLight2.position.set(-5, -5, -3);
+    this.scene.add(dirLight2);
+    this.dirLight2 = dirLight2;
+
+    const pointLight = new THREE.PointLight(0xffffff, 3, 20);
+    pointLight.position.set(0, 0, 4);
+    this.scene.add(pointLight);
+
+    // Partículas ambientales de noticias (datos en el aire)
+    this.createNewsParticles();
+
+    // Construir el modelo inicial
+    this.buildGlobeModel();
+  }
+
+  // --- MODELO 1: GLOBO TERRÁQUEO HOLOGRÁFICO DE NOTICIAS ---
+  buildGlobeModel() {
+    this.clearMainGroup();
+    const theme = this.colorThemes[this.activeTheme];
+
+    // 1. Núcleo central brillante
+    const coreGeo = new THREE.SphereGeometry(1.4, 32, 32);
+    const coreMat = new THREE.MeshStandardMaterial({
+      color: 0x051329,
+      roughness: 0.2,
+      metalness: 0.8,
+      emissive: theme.secondary,
+      emissiveIntensity: 0.15
+    });
+    const coreSphere = new THREE.Mesh(coreGeo, coreMat);
+    this.mainGroup.add(coreSphere);
+
+    // 2. Malla wireframe de meridianos y paralelos
+    const wireGeo = new THREE.SphereGeometry(1.44, 24, 24);
+    const wireMat = new THREE.MeshBasicMaterial({
+      color: theme.primary,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.35
+    });
+    const wireSphere = new THREE.Mesh(wireGeo, wireMat);
+    this.mainGroup.add(wireSphere);
+
+    // 3. Puntos flotantes de continentes / Nodos de información
+    const pointsCount = 400;
+    const pointsGeo = new THREE.BufferGeometry();
+    const positions = new Float32Array(pointsCount * 3);
+    for (let i = 0; i < pointsCount; i++) {
+      const phi = Math.acos(-1 + (2 * i) / pointsCount);
+      const theta = Math.sqrt(pointsCount * Math.PI) * phi;
+      const radius = 1.46 + Math.random() * 0.05;
+
+      positions[i * 3] = radius * Math.cos(theta) * Math.sin(phi);
+      positions[i * 3 + 1] = radius * Math.sin(theta) * Math.sin(phi);
+      positions[i * 3 + 2] = radius * Math.cos(phi);
+    }
+    pointsGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const pointsMat = new THREE.PointsMaterial({
+      color: theme.glow,
+      size: 0.06,
+      transparent: true,
+      opacity: 0.8
+    });
+    const pointsMesh = new THREE.Points(pointsGeo, pointsMat);
+    this.mainGroup.add(pointsMesh);
+
+    // 4. Anillo orbital ecuatorial exterior (Flujo de noticias 24/7)
+    const ringGeo = new THREE.TorusGeometry(2.1, 0.03, 16, 100);
+    const ringMat = new THREE.MeshStandardMaterial({
+      color: theme.primary,
+      emissive: theme.primary,
+      emissiveIntensity: 0.6,
+      roughness: 0.1,
+      metalness: 0.9
+    });
+    const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+    ringMesh.rotation.x = Math.PI / 3;
+    ringMesh.rotation.y = Math.PI / 6;
+    this.orbitRing1 = ringMesh;
+    this.mainGroup.add(ringMesh);
+
+    // Segundo anillo orbital inclinado
+    const ringGeo2 = new THREE.TorusGeometry(2.35, 0.02, 16, 100);
+    const ringMat2 = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.3
+    });
+    const ringMesh2 = new THREE.Mesh(ringGeo2, ringMat2);
+    ringMesh2.rotation.x = -Math.PI / 4;
+    ringMesh2.rotation.z = Math.PI / 5;
+    this.orbitRing2 = ringMesh2;
+    this.mainGroup.add(ringMesh2);
+
+    // 5. Balizas satelitales orbitantes (Nodos de información en directo)
+    this.satellites = [];
+    for (let i = 0; i < 3; i++) {
+      const satGroup = new THREE.Group();
+      const satGeo = new THREE.OctahedronGeometry(0.12, 0);
+      const satMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: theme.glow,
+        emissiveIntensity: 1
+      });
+      const sat = new THREE.Mesh(satGeo, satMat);
+      sat.position.set(Math.cos((i * Math.PI * 2) / 3) * 2.2, 0, Math.sin((i * Math.PI * 2) / 3) * 2.2);
+      satGroup.add(sat);
+      satGroup.rotation.x = (i * Math.PI) / 4;
+      satGroup.rotation.y = (i * Math.PI) / 3;
+      this.orbitGroup.add(satGroup);
+      this.satellites.push({ group: satGroup, speed: 0.015 + i * 0.005 });
+    }
+  }
+
+  // --- MODELO 2: CUBO ISOMÉTRICO DE NOTICIAS ---
+  buildCubeModel() {
+    this.clearMainGroup();
+    const theme = this.colorThemes[this.activeTheme];
+
+    // Cubo principal biselado o segmentado
+    const cubeGeo = new THREE.BoxGeometry(2.0, 2.0, 2.0);
+    
+    // Generar textura dinámica de prensa para las caras
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 512;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#0a1128';
+    ctx.fillRect(0, 0, 512, 512);
+    ctx.fillStyle = '#00f2fe';
+    ctx.font = 'bold 50px sans-serif';
+    ctx.fillText('NOVA PRESS', 60, 100);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '28px sans-serif';
+    ctx.fillText('EDICIÓN DIGITAL 3D', 60, 160);
+    ctx.fillStyle = '#64748b';
+    for (let y = 220; y < 450; y += 35) {
+      ctx.fillRect(60, y, 390 * (Math.sin(y) * 0.2 + 0.8), 12);
+    }
+    const texture = new THREE.CanvasTexture(canvas);
+
+    const cubeMat = new THREE.MeshStandardMaterial({
+      map: texture,
+      roughness: 0.3,
+      metalness: 0.7,
+      emissive: theme.secondary,
+      emissiveIntensity: 0.1
+    });
+
+    const cubeMesh = new THREE.Mesh(cubeGeo, cubeMat);
+    this.mainGroup.add(cubeMesh);
+
+    // Marco exterior de neón
+    const edgeGeo = new THREE.BoxGeometry(2.1, 2.1, 2.1);
+    const edgeMat = new THREE.MeshBasicMaterial({
+      color: theme.primary,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.6
+    });
+    const edgeMesh = new THREE.Mesh(edgeGeo, edgeMat);
+    this.mainGroup.add(edgeMesh);
+
+    // Elementos flotantes alrededor del cubo
+    for (let i = 0; i < 4; i++) {
+      const tagGeo = new THREE.BoxGeometry(0.5, 0.15, 0.05);
+      const tagMat = new THREE.MeshStandardMaterial({
+        color: theme.glow,
+        emissive: theme.primary,
+        emissiveIntensity: 0.8
+      });
+      const tag = new THREE.Mesh(tagGeo, tagMat);
+      const angle = (i * Math.PI) / 2;
+      tag.position.set(Math.cos(angle) * 1.8, Math.sin(angle) * 1.8, (i % 2 === 0 ? 0.6 : -0.6));
+      this.mainGroup.add(tag);
+    }
+  }
+
+  // --- MODELO 3: PRISMA DE INFORMACIÓN HOLOGRÁFICO ---
+  buildPrismModel() {
+    this.clearMainGroup();
+    const theme = this.colorThemes[this.activeTheme];
+
+    // Geometría de prisma piramidal gemelo
+    const prismGeo = new THREE.OctahedronGeometry(1.6, 0);
+    const prismMat = new THREE.MeshPhysicalMaterial({
+      color: theme.primary,
+      emissive: theme.secondary,
+      emissiveIntensity: 0.2,
+      roughness: 0.1,
+      metalness: 0.1,
+      transmission: 0.85,
+      thickness: 1.2,
+      transparent: true,
+      opacity: 0.95
+    });
+
+    const prism = new THREE.Mesh(prismGeo, prismMat);
+    this.mainGroup.add(prism);
+
+    // Malla interna con pulso
+    const innerGeo = new THREE.IcosahedronGeometry(0.8, 1);
+    const innerMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      wireframe: true
+    });
+    const innerMesh = new THREE.Mesh(innerGeo, innerMat);
+    this.mainGroup.add(innerMesh);
+
+    // Anillo vertical giratorio
+    const ringGeo = new THREE.TorusGeometry(2.0, 0.04, 16, 80);
+    const ringMat = new THREE.MeshStandardMaterial({
+      color: theme.glow,
+      emissive: theme.primary,
+      emissiveIntensity: 1
+    });
+    const ring = new THREE.Mesh(ringGeo, ringMat);
+    ring.rotation.x = Math.PI / 2;
+    this.orbitRing1 = ring;
+    this.mainGroup.add(ring);
+  }
+
+  // Partículas de fondo simulando ondas de datos
+  createNewsParticles() {
+    const particleCount = 200;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3);
+    const scales = new Float32Array(particleCount);
+
+    for (let i = 0; i < particleCount; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 14;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 14;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+      scales[i] = Math.random() * 2 + 1;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
+
+    const material = new THREE.PointsMaterial({
+      color: 0x38bdf8,
+      size: 0.05,
+      transparent: true,
+      opacity: 0.5,
+      blending: THREE.AdditiveBlending
+    });
+
+    this.particles = new THREE.Points(geometry, material);
+    this.scene.add(this.particles);
+  }
+
+  clearMainGroup() {
+    while (this.mainGroup.children.length > 0) {
+      const obj = this.mainGroup.children[0];
+      this.mainGroup.remove(obj);
+      if (obj.geometry) obj.geometry.dispose();
+      if (obj.material) {
+        if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+        else obj.material.dispose();
+      }
+    }
+    // Re-añadir orbitGroup
+    this.orbitGroup = new THREE.Group();
+    this.mainGroup.add(this.orbitGroup);
+    this.satellites = [];
+  }
+
+  // Eventos de ratón, gestos táctiles e interactividad
+  setupListeners() {
+    const dom = this.renderer.domElement;
+
+    // Movimiento suave siguiendo el ratón (Parallax 3D)
+    window.addEventListener('mousemove', (e) => {
+      const rect = this.container.getBoundingClientRect();
+      const clientX = e.clientX - (rect.left + rect.width / 2);
+      const clientY = e.clientY - (rect.top + rect.height / 2);
+
+      this.mouseX = (clientX / window.innerWidth) * 2;
+      this.mouseY = (clientY / window.innerHeight) * 2;
+    });
+
+    // Arrastre directo con clic o toque para rotación libre 360°
+    dom.addEventListener('mousedown', (e) => {
+      this.isDragging = true;
+      this.previousMousePosition = { x: e.clientX, y: e.clientY };
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!this.isDragging) return;
+      const deltaX = e.clientX - this.previousMousePosition.x;
+      const deltaY = e.clientY - this.previousMousePosition.y;
+
+      this.mainGroup.rotation.y += deltaX * 0.008;
+      this.mainGroup.rotation.x += deltaY * 0.008;
+
+      this.previousMousePosition = { x: e.clientX, y: e.clientY };
+    });
+
+    window.addEventListener('mouseup', () => {
+      this.isDragging = false;
+    });
+
+    // Soporte táctil en móviles
+    dom.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        this.isDragging = true;
+        this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!this.isDragging || e.touches.length !== 1) return;
+      const deltaX = e.touches[0].clientX - this.previousMousePosition.x;
+      const deltaY = e.touches[0].clientY - this.previousMousePosition.y;
+
+      this.mainGroup.rotation.y += deltaX * 0.01;
+      this.mainGroup.rotation.x += deltaY * 0.01;
+
+      this.previousMousePosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      this.isDragging = false;
+    });
+
+    // Efecto de pulso / rebote al hacer clic sobre el modelo
+    dom.addEventListener('click', () => {
+      this.pulseAnimation();
+    });
+
+    // Redimensionamiento
+    window.addEventListener('resize', () => this.onResize());
+
+    if (window.ResizeObserver) {
+      const resizeObserver = new ResizeObserver(() => this.onResize());
+      resizeObserver.observe(this.container);
+    }
+  }
+
+  onResize() {
+    if (!this.container || !this.renderer || !this.camera) return;
+    const width = this.container.clientWidth;
+    const height = this.container.clientHeight;
+    if (width === 0 || height === 0) return;
+    this.camera.aspect = width / height;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(width, height);
+  }
+
+  pulseAnimation() {
+    const startScale = 1;
+    const targetScale = 1.18;
+    let t = 0;
+
+    const animatePulse = () => {
+      t += 0.08;
+      if (t < Math.PI) {
+        const factor = 1 + Math.sin(t) * 0.2;
+        this.mainGroup.scale.set(factor, factor, factor);
+        requestAnimationFrame(animatePulse);
+      } else {
+        this.mainGroup.scale.set(startScale, startScale, startScale);
+      }
+    };
+    animatePulse();
+  }
+
+  // Métodos de control interactivo para la UI
+  setMode(mode) {
+    if (this.currentMode === mode) return;
+    this.currentMode = mode;
+    if (mode === 'globe') this.buildGlobeModel();
+    else if (mode === 'cube') this.buildCubeModel();
+    else if (mode === 'prism') this.buildPrismModel();
+  }
+
+  setTheme(themeName) {
+    if (!this.colorThemes[themeName]) return;
+    this.activeTheme = themeName;
+    const theme = this.colorThemes[themeName];
+    if (this.dirLight1) this.dirLight1.color.setHex(theme.primary);
+    if (this.currentMode === 'globe') this.buildGlobeModel();
+    else if (this.currentMode === 'cube') this.buildCubeModel();
+    else if (this.currentMode === 'prism') this.buildPrismModel();
+  }
+
+  setSpeed(speed) {
+    this.rotationSpeed = parseFloat(speed);
+  }
+
+  // Bucle de animación continuo
+  animate() {
+    requestAnimationFrame(() => this.animate());
+
+    const time = performance.now() * 0.001;
+
+    // Rotación suave continua si no se está arrastrando directamente
+    if (!this.isDragging) {
+      this.mainGroup.rotation.y += this.rotationSpeed;
+      // Inclinación reactiva al cursor
+      this.targetRotationX = this.mouseY * 0.4;
+      this.targetRotationY = this.mouseX * 0.4;
+      this.mainGroup.rotation.x += (this.targetRotationX - this.mainGroup.rotation.x) * 0.05;
+    }
+
+    // Flotación senoidal elegante (levitación)
+    this.mainGroup.position.y = Math.sin(time * 2) * 0.12;
+
+    // Rotación de anillos orbitales
+    if (this.orbitRing1) this.orbitRing1.rotation.z += 0.007;
+    if (this.orbitRing2) this.orbitRing2.rotation.z -= 0.005;
+
+    // Satélites orbitales
+    if (this.satellites) {
+      this.satellites.forEach(sat => {
+        sat.group.rotation.y += sat.speed;
+      });
+    }
+
+    // Partículas de fondo girando levemente
+    if (this.particles) {
+      this.particles.rotation.y = time * 0.02;
+      this.particles.rotation.x = Math.sin(time * 0.01) * 0.05;
+    }
+
+    this.renderer.render(this.scene, this.camera);
+  }
+}
+
+// Inicializar cuando el DOM esté listo
+window.init3DNewsIcon = (containerId = 'three-canvas-container') => {
+  return new Interactive3DNewsIcon(containerId);
+};
+
+
+/**
+ * Lógica principal de interacción para el Portal de Noticias NOVA PRESS
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Helpers seguros de almacenamiento para compatibilidad total con navegadores y Neocities
+  const storage = {
+    getBookmarks: () => {
+      try { return JSON.parse(localStorage.getItem('novapress_bookmarks') || '[]'); }
+      catch (e) { return []; }
+    },
+    setBookmarks: (data) => {
+      try { localStorage.setItem('novapress_bookmarks', JSON.stringify(data)); }
+      catch (e) {}
+    },
+    getTheme: () => {
+      try { return localStorage.getItem('novapress_theme') || 'dark'; }
+      catch (e) { return 'dark'; }
+    },
+    setTheme: (theme) => {
+      try { localStorage.setItem('novapress_theme', theme); }
+      catch (e) {}
+    }
+  };
+
+  // Estado global de la aplicación
+  const state = {
+    currentCategory: 'all',
+    searchQuery: '',
+    bookmarks: storage.getBookmarks(),
+    theme: storage.getTheme(),
+    currentArticle: null,
+    speechSynthesisUtterance: null,
+    isSpeaking: false,
+    fontSizeMultiplier: 1,
+    threeInstance: null
+  };
+
+  // Referencias DOM
+  const elements = {
+    newsGrid: document.getElementById('news-grid'),
+    featuredContainer: document.getElementById('featured-news'),
+    breakingTicker: document.getElementById('breaking-ticker'),
+    categoryButtons: document.querySelectorAll('.category-btn'),
+    searchInput: document.getElementById('search-input'),
+    themeToggleBtn: document.getElementById('theme-toggle-btn'),
+    themeIcon: document.getElementById('theme-icon'),
+    bookmarkCount: document.getElementById('bookmark-count'),
+    bookmarkBtn: document.getElementById('bookmark-btn'),
+    bookmarksModal: document.getElementById('bookmarks-modal'),
+    closeBookmarksBtn: document.getElementById('close-bookmarks-btn'),
+    bookmarksList: document.getElementById('bookmarks-list'),
+    
+    // Modal de Noticia Completa
+    articleModal: document.getElementById('article-modal'),
+    closeArticleBtn: document.getElementById('close-article-btn'),
+    modalCategory: document.getElementById('modal-category'),
+    modalTitle: document.getElementById('modal-title'),
+    modalAuthor: document.getElementById('modal-author'),
+    modalAuthorRole: document.getElementById('modal-author-role'),
+    modalDate: document.getElementById('modal-date'),
+    modalReadTime: document.getElementById('modal-read-time'),
+    modalImage: document.getElementById('modal-image'),
+    modalContent: document.getElementById('modal-content'),
+    modalLikeBtn: document.getElementById('modal-like-btn'),
+    modalLikeCount: document.getElementById('modal-like-count'),
+    modalClapBtn: document.getElementById('modal-clap-btn'),
+    modalClapCount: document.getElementById('modal-clap-count'),
+    modalBookmarkBtn: document.getElementById('modal-bookmark-btn'),
+    modalTtsBtn: document.getElementById('modal-tts-btn'),
+    modalShareBtn: document.getElementById('modal-share-btn'),
+    fontIncreaseBtn: document.getElementById('font-increase-btn'),
+    fontDecreaseBtn: document.getElementById('font-decrease-btn'),
+    
+    // Comentarios
+    commentsList: document.getElementById('comments-list'),
+    commentForm: document.getElementById('comment-form'),
+    commentInput: document.getElementById('comment-input'),
+    commentUserInput: document.getElementById('comment-user-input'),
+
+    // Newsletter
+    newsletterForm: document.getElementById('newsletter-form'),
+    newsletterEmail: document.getElementById('newsletter-email'),
+    toastNotification: document.getElementById('toast-notification'),
+    toastMessage: document.getElementById('toast-message'),
+
+    // Controles 3D
+    modelGlobeBtn: document.getElementById('model-globe-btn'),
+    modelCubeBtn: document.getElementById('model-cube-btn'),
+    modelPrismBtn: document.getElementById('model-prism-btn'),
+    themeCyanBtn: document.getElementById('theme-cyan-btn'),
+    themeAmberBtn: document.getElementById('theme-amber-btn'),
+    themePurpleBtn: document.getElementById('theme-purple-btn'),
+    speedSlider: document.getElementById('speed-slider'),
+    speedLabel: document.getElementById('speed-label'),
+    floating3dTrigger: document.getElementById('floating-3d-trigger'),
+    hero3dCard: document.getElementById('hero-3d-card')
+  };
+
+  // Inicializar 3D Scene
+  if (typeof window.init3DNewsIcon === 'function') {
+    state.threeInstance = window.init3DNewsIcon('three-canvas-container');
+  }
+
+  // Configurar Tema Inicial (Claro / Oscuro)
+  applyTheme(state.theme);
+
+  // Fecha en tiempo real en español
+  const dateEl = document.getElementById('current-live-date');
+  if (dateEl) {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const today = new Intl.DateTimeFormat('es-ES', options).format(new Date());
+    dateEl.textContent = today.charAt(0).toUpperCase() + today.slice(1);
+  }
+
+  // Inicializar Marquesina de Última Hora
+  initBreakingTicker();
+
+  // Renderizar Noticias Iniciales
+  renderFeaturedNews();
+  renderNewsList();
+  updateBookmarkBadge();
+
+  // Configurar Oyentes de Eventos
+  setupEventListeners();
+
+  /* ==========================================================================
+     FUNCIONES DE RENDERIZADO
+     ========================================================================== */
+
+  // Marquesina de noticias urgentes
+  function initBreakingTicker() {
+    if (!elements.breakingTicker) return;
+    const itemsHtml = BREAKING_NEWS.map(item => `
+      <span class="inline-block px-4 py-1 font-medium cursor-pointer hover:underline text-xs md:text-sm">
+        ${item}
+      </span>
+    `).join('<span class="opacity-40 mx-2">•</span>');
+    elements.breakingTicker.innerHTML = itemsHtml + '<span class="opacity-40 mx-2">•</span>' + itemsHtml;
+  }
+
+  // Renderizar Noticia Destacada en el Hero
+  function renderFeaturedNews() {
+    if (!elements.featuredContainer) return;
+    const featured = NEWS_DATA.find(n => n.featured) || NEWS_DATA[0];
+    const isBookmarked = state.bookmarks.includes(featured.id);
+
+    elements.featuredContainer.innerHTML = `
+      <article class="relative group bg-slate-800/80 rounded-2xl overflow-hidden border border-slate-700/60 shadow-2xl backdrop-blur-md transition-all duration-300 hover:border-cyan-500/50 hover:shadow-cyan-500/10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-0">
+          <div class="lg:col-span-7 relative h-72 sm:h-96 lg:h-auto overflow-hidden">
+            <img src="${featured.image}" alt="${featured.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent lg:hidden"></div>
+            <span class="absolute top-4 left-4 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wider uppercase bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/30 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span>
+              PORTADA EXCLUSIVA
+            </span>
+          </div>
+
+          <div class="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-3 text-xs text-slate-400 mb-3">
+                <span class="text-cyan-400 font-medium uppercase tracking-wider">${featured.categoryName}</span>
+                <span>•</span>
+                <span>${featured.date}</span>
+                <span>•</span>
+                <span>⏱️ ${featured.readTime}</span>
+              </div>
+
+              <h2 class="text-2xl sm:text-3xl font-extrabold text-white leading-tight mb-4 group-hover:text-cyan-400 transition-colors">
+                ${featured.title}
+              </h2>
+
+              <p class="text-slate-300 text-sm leading-relaxed mb-6 line-clamp-3">
+                ${featured.summary}
+              </p>
+            </div>
+
+            <div class="pt-4 border-t border-slate-700/60 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-white shadow-md">
+                  ${featured.author.charAt(0)}
+                </div>
+                <div>
+                  <p class="text-sm font-bold text-white">${featured.author}</p>
+                  <p class="text-xs text-slate-400">${featured.authorRole}</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button onclick="window.toggleBookmark(${featured.id})" class="p-2.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 hover:text-cyan-400 hover:border-cyan-500 transition-colors" title="Guardar para después">
+                  <i class="${isBookmarked ? 'fa-solid text-cyan-400' : 'fa-regular'} fa-bookmark"></i>
+                </button>
+                <button onclick="window.openArticleModal(${featured.id})" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-sm shadow-lg shadow-cyan-500/20 transition-all transform hover:-translate-y-0.5 flex items-center gap-2">
+                  <span>Leer Reportaje</span>
+                  <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  // Filtrar y renderizar lista de noticias
+  function renderNewsList() {
+    if (!elements.newsGrid) return;
+
+    let filtered = NEWS_DATA;
+
+    // Filtro por categoría
+    if (state.currentCategory !== 'all') {
+      filtered = filtered.filter(item => item.category === state.currentCategory);
+    }
+
+    // Filtro por búsqueda
+    if (state.searchQuery.trim() !== '') {
+      const q = state.searchQuery.toLowerCase();
+      filtered = filtered.filter(item => 
+        item.title.toLowerCase().includes(q) ||
+        item.summary.toLowerCase().includes(q) ||
+        item.author.toLowerCase().includes(q) ||
+        item.categoryName.toLowerCase().includes(q)
+      );
+    }
+
+    if (filtered.length === 0) {
+      elements.newsGrid.innerHTML = `
+        <div class="col-span-full py-16 text-center">
+          <div class="w-20 h-20 mx-auto rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-3xl text-cyan-400 mb-4 animate-bounce">
+            <i class="fa-solid fa-compass"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">No se encontraron noticias</h3>
+          <p class="text-slate-400 text-sm max-w-md mx-auto mb-6">
+            Intenta con otra palabra clave o selecciona la categoría "Todos" para explorar toda la edición.
+          </p>
+          <button onclick="window.resetFilter()" class="px-5 py-2 rounded-xl bg-slate-800 text-cyan-400 border border-cyan-500/40 hover:bg-cyan-500/10 text-sm transition-all">
+            Restablecer Filtros
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    elements.newsGrid.innerHTML = filtered.map(news => {
+      const isBookmarked = state.bookmarks.includes(news.id);
+      return `
+        <article class="news-card group flex flex-col bg-slate-800/80 rounded-2xl overflow-hidden border border-slate-700/60 shadow-lg hover:border-cyan-500/50 hover:shadow-cyan-500/10 transition-all duration-300">
+          <div class="relative h-48 overflow-hidden">
+            <img src="${news.image}" alt="${news.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent"></div>
+            <span class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold bg-slate-900/80 backdrop-blur-md text-cyan-400 border border-cyan-500/30">
+              ${news.categoryName}
+            </span>
+            <span class="absolute bottom-3 right-3 text-xs text-slate-300 bg-slate-950/70 px-2 py-0.5 rounded backdrop-blur-sm flex items-center gap-1">
+              <i class="fa-regular fa-clock text-[10px]"></i> ${news.readTime}
+            </span>
+          </div>
+
+          <div class="p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between text-xs text-slate-400 mb-2.5">
+                <span>${news.date}</span>
+                <span class="flex items-center gap-1 text-slate-400">
+                  <i class="fa-solid fa-eye text-[11px] text-cyan-400/80"></i> ${news.views}
+                </span>
+              </div>
+
+              <h3 onclick="window.openArticleModal(${news.id})" class="font-bold text-lg text-white mb-2.5 line-clamp-2 leading-snug cursor-pointer group-hover:text-cyan-400 transition-colors">
+                ${news.title}
+              </h3>
+
+              <p class="text-slate-300 text-xs sm:text-sm line-clamp-3 leading-relaxed mb-4">
+                ${news.summary}
+              </p>
+            </div>
+
+            <div class="pt-4 border-t border-slate-700/50 flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center font-bold text-xs text-cyan-400">
+                  ${news.author.charAt(0)}
+                </div>
+                <span class="text-slate-300 font-medium truncate max-w-[120px]">${news.author}</span>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button onclick="window.toggleBookmark(${news.id})" class="p-2 rounded-lg bg-slate-700/50 text-slate-300 hover:text-cyan-400 transition-colors" title="Guardar">
+                  <i class="${isBookmarked ? 'fa-solid text-cyan-400' : 'fa-regular'} fa-bookmark text-sm"></i>
+                </button>
+                <button onclick="window.openArticleModal(${news.id})" class="px-3 py-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 font-semibold border border-cyan-500/30 transition-all flex items-center gap-1">
+                  <span>Leer</span>
+                  <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join('');
+  }
+
+  /* ==========================================================================
+     MODAL DE LECTURA Y DETALLES DE NOTICIA
+     ========================================================================== */
+
+  window.openArticleModal = (articleId) => {
+    const article = NEWS_DATA.find(n => n.id === articleId);
+    if (!article) return;
+
+    state.currentArticle = article;
+    state.fontSizeMultiplier = 1;
+
+    // Poblar modal
+    elements.modalCategory.textContent = article.categoryName;
+    elements.modalTitle.textContent = article.title;
+    elements.modalAuthor.textContent = article.author;
+    elements.modalAuthorRole.textContent = article.authorRole;
+    elements.modalDate.textContent = article.date;
+    elements.modalReadTime.textContent = article.readTime;
+    elements.modalImage.src = article.image;
+    elements.modalImage.alt = article.title;
+    
+    // Contenido formateado en párrafos
+    const formattedParagraphs = article.content
+      .split('\n\n')
+      .map(p => `<p class="mb-4 text-slate-300 leading-relaxed text-base">${p}</p>`)
+      .join('');
+    elements.modalContent.innerHTML = formattedParagraphs;
+    applyFontSize();
+
+    // Actualizar contadores
+    elements.modalLikeCount.textContent = article.likes;
+    elements.modalClapCount.textContent = article.claps;
+
+    // Estado del botón de guardar
+    updateModalBookmarkBtn();
+
+    // Renderizar comentarios
+    renderComments();
+
+    // Detener síntesis de voz previa si estuviera activa
+    stopSpeechSynthesis();
+
+    // Mostrar modal con animación
+    elements.articleModal.classList.remove('hidden');
+    elements.articleModal.classList.add('flex');
+    document.body.classList.add('overflow-hidden');
+  };
+
+  window.closeArticleModal = () => {
+    stopSpeechSynthesis();
+    elements.articleModal.classList.add('hidden');
+    elements.articleModal.classList.remove('flex');
+    document.body.classList.remove('overflow-hidden');
+  };
+
+  function applyFontSize() {
+    elements.modalContent.style.fontSize = `${1 * state.fontSizeMultiplier}rem`;
+    elements.modalContent.style.lineHeight = `${1.7 * state.fontSizeMultiplier}`;
+  }
+
+  // Comentarios interactivos
+  function renderComments() {
+    if (!elements.commentsList || !state.currentArticle) return;
+    const comments = state.currentArticle.comments || [];
+    
+    if (comments.length === 0) {
+      elements.commentsList.innerHTML = `
+        <p class="text-sm text-slate-400 italic py-4">Sé el primero en compartir tu opinión sobre este reportaje.</p>
+      `;
+      return;
+    }
+
+    elements.commentsList.innerHTML = comments.map(c => `
+      <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-sm">
+        <div class="flex items-center justify-between mb-1.5">
+          <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-bold text-xs flex items-center justify-center">
+              ${c.user.charAt(0)}
+            </span>
+            <span class="font-bold text-white text-xs">${c.user}</span>
+          </div>
+          <span class="text-[11px] text-slate-500">${c.time}</span>
+        </div>
+        <p class="text-slate-300 text-xs sm:text-sm pl-8">${c.text}</p>
+      </div>
+    `).join('');
+  }
+
+  /* ==========================================================================
+     SÍNTESIS DE VOZ INTERACTIVA (Escuchar Noticia)
+     ========================================================================== */
+
+  function toggleSpeechSynthesis() {
+    if (!('speechSynthesis' in window) || !state.currentArticle) {
+      showToast('Tu navegador no soporta síntesis de voz.');
+      return;
+    }
+
+    if (state.isSpeaking) {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+        updateTtsUi(true);
+      } else {
+        window.speechSynthesis.pause();
+        updateTtsUi(false, true);
+      }
+    } else {
+      const fullText = `${state.currentArticle.title}. ${state.currentArticle.content}`;
+      state.speechSynthesisUtterance = new SpeechSynthesisUtterance(fullText);
+      state.speechSynthesisUtterance.lang = 'es-ES';
+      state.speechSynthesisUtterance.rate = 1.0;
+
+      state.speechSynthesisUtterance.onstart = () => {
+        state.isSpeaking = true;
+        updateTtsUi(true);
+      };
+
+      state.speechSynthesisUtterance.onend = () => {
+        state.isSpeaking = false;
+        updateTtsUi(false);
+      };
+
+      state.speechSynthesisUtterance.onerror = () => {
+        state.isSpeaking = false;
+        updateTtsUi(false);
+      };
+
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(state.speechSynthesisUtterance);
+    }
+  }
+
+  function stopSpeechSynthesis() {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
+    state.isSpeaking = false;
+    updateTtsUi(false);
+  }
+
+  function updateTtsUi(speaking, paused = false) {
+    if (!elements.modalTtsBtn) return;
+    if (speaking) {
+      elements.modalTtsBtn.innerHTML = '<i class="fa-solid fa-pause text-cyan-400 animate-pulse"></i><span>Pausar Lectura</span>';
+      elements.modalTtsBtn.classList.add('border-cyan-500', 'bg-cyan-500/10');
+    } else if (paused) {
+      elements.modalTtsBtn.innerHTML = '<i class="fa-solid fa-play text-cyan-400"></i><span>Reanudar Lectura</span>';
+    } else {
+      elements.modalTtsBtn.innerHTML = '<i class="fa-solid fa-volume-high text-cyan-400"></i><span>Escuchar Noticia</span>';
+      elements.modalTtsBtn.classList.remove('border-cyan-500', 'bg-cyan-500/10');
+    }
+  }
+
+  /* ==========================================================================
+     BOOKMARKS / NOTICIAS GUARDADAS
+     ========================================================================== */
+
+  window.toggleBookmark = (id) => {
+    const index = state.bookmarks.indexOf(id);
+    if (index === -1) {
+      state.bookmarks.push(id);
+      showToast('Artículo añadido a tus marcadores guardados.');
+    } else {
+      state.bookmarks.splice(index, 1);
+      showToast('Artículo eliminado de tus marcadores.');
+    }
+
+    storage.setBookmarks(state.bookmarks);
+    updateBookmarkBadge();
+    renderFeaturedNews();
+    renderNewsList();
+    updateModalBookmarkBtn();
+    renderBookmarksList();
+  };
+
+  function updateBookmarkBadge() {
+    if (elements.bookmarkCount) {
+      elements.bookmarkCount.textContent = state.bookmarks.length;
+      elements.bookmarkCount.classList.toggle('hidden', state.bookmarks.length === 0);
+    }
+  }
+
+  function updateModalBookmarkBtn() {
+    if (!elements.modalBookmarkBtn || !state.currentArticle) return;
+    const isBookmarked = state.bookmarks.includes(state.currentArticle.id);
+    elements.modalBookmarkBtn.innerHTML = isBookmarked
+      ? '<i class="fa-solid fa-bookmark text-cyan-400"></i>'
+      : '<i class="fa-regular fa-bookmark"></i>';
+  }
+
+  function renderBookmarksList() {
+    if (!elements.bookmarksList) return;
+    const saved = NEWS_DATA.filter(n => state.bookmarks.includes(n.id));
+
+    if (saved.length === 0) {
+      elements.bookmarksList.innerHTML = `
+        <div class="py-12 text-center text-slate-400">
+          <i class="fa-regular fa-bookmark text-4xl mb-3 text-slate-600 block"></i>
+          <p class="text-sm">Aún no has guardado ninguna noticia para leer después.</p>
+        </div>
+      `;
+      return;
+    }
+
+    elements.bookmarksList.innerHTML = saved.map(item => `
+      <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 transition-colors">
+        <div class="cursor-pointer flex-1 mr-3" onclick="window.closeBookmarksModal(); window.openArticleModal(${item.id})">
+          <span class="text-xs text-cyan-400 font-semibold">${item.categoryName}</span>
+          <h4 class="text-sm font-bold text-white line-clamp-1 hover:text-cyan-400 transition-colors">${item.title}</h4>
+          <span class="text-xs text-slate-400">${item.date}</span>
+        </div>
+        <button onclick="window.toggleBookmark(${item.id})" class="p-2 text-rose-400 hover:text-rose-300" title="Eliminar de guardados">
+          <i class="fa-solid fa-trash-can text-sm"></i>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  window.openBookmarksModal = () => {
+    renderBookmarksList();
+    elements.bookmarksModal.classList.remove('hidden');
+    elements.bookmarksModal.classList.add('flex');
+  };
+
+  window.closeBookmarksModal = () => {
+    elements.bookmarksModal.classList.add('hidden');
+    elements.bookmarksModal.classList.remove('flex');
+  };
+
+  /* ==========================================================================
+     TEMA Y NOTIFICACIONES
+     ========================================================================== */
+
+  function applyTheme(theme) {
+    state.theme = theme;
+    storage.setTheme(theme);
+    const html = document.documentElement;
+
+    if (theme === 'light') {
+      html.classList.remove('dark');
+      html.classList.add('light');
+      if (elements.themeIcon) elements.themeIcon.className = 'fa-solid fa-moon text-cyan-600';
+    } else {
+      html.classList.remove('light');
+      html.classList.add('dark');
+      if (elements.themeIcon) elements.themeIcon.className = 'fa-solid fa-sun text-amber-400';
+    }
+  }
+
+  function toggleTheme() {
+    const newTheme = state.theme === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+  }
+
+  function showToast(message) {
+    if (!elements.toastNotification || !elements.toastMessage) return;
+    elements.toastMessage.textContent = message;
+    elements.toastNotification.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+    elements.toastNotification.classList.add('opacity-100', 'translate-y-0');
+
+    setTimeout(() => {
+      elements.toastNotification.classList.remove('opacity-100', 'translate-y-0');
+      elements.toastNotification.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+    }, 3200);
+  }
+
+  window.resetFilter = () => {
+    state.currentCategory = 'all';
+    state.searchQuery = '';
+    if (elements.searchInput) elements.searchInput.value = '';
+    elements.categoryButtons.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.category === 'all');
+    });
+    renderNewsList();
+  };
+
+  /* ==========================================================================
+     CONFIGURACIÓN DE EVENT LISTENERS
+     ========================================================================== */
+
+  function setupEventListeners() {
+    // Filtros de categoría
+    elements.categoryButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        elements.categoryButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.currentCategory = btn.dataset.category;
+        renderNewsList();
+      });
+    });
+
+    // Búsqueda en tiempo real
+    if (elements.searchInput) {
+      elements.searchInput.addEventListener('input', (e) => {
+        state.searchQuery = e.target.value;
+        renderNewsList();
+      });
+    }
+
+    // Toggle de tema
+    if (elements.themeToggleBtn) {
+      elements.themeToggleBtn.addEventListener('click', toggleTheme);
+    }
+
+    // Modal de Marcadores
+    if (elements.bookmarkBtn) {
+      elements.bookmarkBtn.addEventListener('click', window.openBookmarksModal);
+    }
+    if (elements.closeBookmarksBtn) {
+      elements.closeBookmarksBtn.addEventListener('click', window.closeBookmarksModal);
+    }
+
+    // Modal de Noticia
+    if (elements.closeArticleBtn) {
+      elements.closeArticleBtn.addEventListener('click', window.closeArticleModal);
+    }
+
+    // Cerrar modales con Escape
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        window.closeArticleModal();
+        window.closeBookmarksModal();
+      }
+    });
+
+    // Cerrar al hacer clic fuera del contenido (backdrop)
+    elements.articleModal?.addEventListener('click', (e) => {
+      if (e.target === elements.articleModal) window.closeArticleModal();
+    });
+    elements.bookmarksModal?.addEventListener('click', (e) => {
+      if (e.target === elements.bookmarksModal) window.closeBookmarksModal();
+    });
+
+    // Likes & Claps en modal
+    if (elements.modalLikeBtn) {
+      elements.modalLikeBtn.addEventListener('click', () => {
+        if (!state.currentArticle) return;
+        state.currentArticle.likes++;
+        elements.modalLikeCount.textContent = state.currentArticle.likes;
+        elements.modalLikeBtn.classList.add('scale-125', 'text-rose-500');
+        setTimeout(() => elements.modalLikeBtn.classList.remove('scale-125'), 200);
+      });
+    }
+
+    if (elements.modalClapBtn) {
+      elements.modalClapBtn.addEventListener('click', () => {
+        if (!state.currentArticle) return;
+        state.currentArticle.claps++;
+        elements.modalClapCount.textContent = state.currentArticle.claps;
+        elements.modalClapBtn.classList.add('scale-125', 'text-amber-400');
+        setTimeout(() => elements.modalClapBtn.classList.remove('scale-125'), 200);
+      });
+    }
+
+    // Guardar desde modal
+    if (elements.modalBookmarkBtn) {
+      elements.modalBookmarkBtn.addEventListener('click', () => {
+        if (state.currentArticle) window.toggleBookmark(state.currentArticle.id);
+      });
+    }
+
+    // TTS
+    if (elements.modalTtsBtn) {
+      elements.modalTtsBtn.addEventListener('click', toggleSpeechSynthesis);
+    }
+
+    // Compartir
+    if (elements.modalShareBtn) {
+      elements.modalShareBtn.addEventListener('click', () => {
+        if (!state.currentArticle) return;
+        if (navigator.share) {
+          navigator.share({
+            title: state.currentArticle.title,
+            text: state.currentArticle.summary,
+            url: window.location.href
+          }).catch(() => {});
+        } else {
+          navigator.clipboard.writeText(window.location.href);
+          showToast('¡Enlace de la noticia copiado al portapapeles!');
+        }
+      });
+    }
+
+    // Ajuste de tipografía
+    if (elements.fontIncreaseBtn) {
+      elements.fontIncreaseBtn.addEventListener('click', () => {
+        if (state.fontSizeMultiplier < 1.4) {
+          state.fontSizeMultiplier += 0.1;
+          applyFontSize();
+        }
+      });
+    }
+
+    if (elements.fontDecreaseBtn) {
+      elements.fontDecreaseBtn.addEventListener('click', () => {
+        if (state.fontSizeMultiplier > 0.8) {
+          state.fontSizeMultiplier -= 0.1;
+          applyFontSize();
+        }
+      });
+    }
+
+    // Formulario de comentarios
+    if (elements.commentForm) {
+      elements.commentForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = elements.commentInput.value.trim();
+        const user = elements.commentUserInput.value.trim() || 'Lector Anónimo';
+        if (!text || !state.currentArticle) return;
+
+        state.currentArticle.comments = state.currentArticle.comments || [];
+        state.currentArticle.comments.unshift({
+          user: user,
+          time: 'Justo ahora',
+          text: text
+        });
+
+        elements.commentInput.value = '';
+        renderComments();
+        showToast('¡Tu comentario ha sido publicado!');
+      });
+    }
+
+    // Newsletter
+    if (elements.newsletterForm) {
+      elements.newsletterForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = elements.newsletterEmail.value.trim();
+        if (email) {
+          showToast(`¡Gracias! Has sido suscrito con: ${email}`);
+          elements.newsletterEmail.value = '';
+        }
+      });
+    }
+
+    // Controles del Modelo 3D
+    if (state.threeInstance) {
+      // Modos
+      elements.modelGlobeBtn?.addEventListener('click', () => {
+        state.threeInstance.setMode('globe');
+        setActiveBtn([elements.modelGlobeBtn, elements.modelCubeBtn, elements.modelPrismBtn], elements.modelGlobeBtn);
+        showToast('Modo 3D: HoloGlobo Interactivo');
+      });
+
+      elements.modelCubeBtn?.addEventListener('click', () => {
+        state.threeInstance.setMode('cube');
+        setActiveBtn([elements.modelGlobeBtn, elements.modelCubeBtn, elements.modelPrismBtn], elements.modelCubeBtn);
+        showToast('Modo 3D: Cubo Isométrico de Noticias');
+      });
+
+      elements.modelPrismBtn?.addEventListener('click', () => {
+        state.threeInstance.setMode('prism');
+        setActiveBtn([elements.modelGlobeBtn, elements.modelCubeBtn, elements.modelPrismBtn], elements.modelPrismBtn);
+        showToast('Modo 3D: Prisma Cristalino');
+      });
+
+      // Temas de Color 3D
+      elements.themeCyanBtn?.addEventListener('click', () => {
+        state.threeInstance.setTheme('cyan');
+        setActiveBtn([elements.themeCyanBtn, elements.themeAmberBtn, elements.themePurpleBtn], elements.themeCyanBtn);
+      });
+
+      elements.themeAmberBtn?.addEventListener('click', () => {
+        state.threeInstance.setTheme('amber');
+        setActiveBtn([elements.themeCyanBtn, elements.themeAmberBtn, elements.themePurpleBtn], elements.themeAmberBtn);
+      });
+
+      elements.themePurpleBtn?.addEventListener('click', () => {
+        state.threeInstance.setTheme('purple');
+        setActiveBtn([elements.themeCyanBtn, elements.themeAmberBtn, elements.themePurpleBtn], elements.themePurpleBtn);
+      });
+
+      // Velocidad
+      elements.speedSlider?.addEventListener('input', (e) => {
+        const val = e.target.value;
+        state.threeInstance.setSpeed(val);
+        if (elements.speedLabel) elements.speedLabel.textContent = `${parseFloat(val * 100).toFixed(0)}%`;
+      });
+    }
+
+    // Trigger para el Icono Móvil 3D Flotante
+    elements.floating3dTrigger?.addEventListener('click', () => {
+      elements.hero3dCard?.scrollIntoView({ behavior: 'smooth' });
+      state.threeInstance?.pulseAnimation();
+    });
+  }
+
+  function setActiveBtn(group, activeBtn) {
+    group.forEach(btn => {
+      if (!btn) return;
+      btn.classList.remove('bg-cyan-500', 'text-slate-950', 'border-cyan-400');
+      btn.classList.add('bg-slate-800', 'text-slate-300', 'border-slate-700');
+    });
+    if (activeBtn) {
+      activeBtn.classList.remove('bg-slate-800', 'text-slate-300', 'border-slate-700');
+      activeBtn.classList.add('bg-cyan-500', 'text-slate-950', 'border-cyan-400');
+    }
+  }
+});
+
+  </script>
+</body>
+</html>
+
